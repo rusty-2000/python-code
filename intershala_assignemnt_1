@@ -1,0 +1,77 @@
+import sys
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import openai
+
+# Configure OpenAI API credentials
+openai.api_key = 'YOUR_API_KEY'
+
+# Start the web driver (assuming ChromeDriver)
+driver = webdriver.Chrome()
+
+# Open the desired website
+driver.get('https://twitter.com/DivGarg9/status/1624525825067610112')
+
+# Find the login elements and enter the credentials
+class NoSuchElementException:
+    pass
+
+
+try:
+    username_input = driver.find_element_by_name('session[username_or_email]')
+    password_input = driver.find_element_by_name('session[password]')
+    username_input.send_keys('your_username')
+    password_input.send_keys('your_password')
+    password_input.send_keys(Keys.ENTER)
+    time.sleep(5)  # Wait for the login to complete
+except NoSuchElementException:
+    print("Error: Failed to find login elements on the page.")
+    driver.quit()
+    sys.exit(1)
+except Exception as e:
+    print("An error occurred during login:", str(e))
+    driver.quit()
+    sys.exit(1)
+
+# Find the tweet input field and click on it
+try:
+    tweet_input = driver.find_element_by_css_selector('div[aria-label="Tweet text"]')
+    tweet_input.click()
+
+    # Accept user input from different sources (command-line arguments or text files)
+    if len(sys.argv) > 1:
+        user_input = ' '.join(sys.argv[1:])  # Use command-line arguments
+    else:
+        # Read from a text file
+        with open('input.txt', 'r') as file:
+            user_input = file.read()
+
+    # Use ChatGPT to generate the tweet content based on user input
+    response = openai.Completion.create(
+        engine='text-davinci-003',
+        prompt=user_input,
+        max_tokens=50,
+        n=1,
+        stop=None,
+        temperature=0.7,
+    )
+    tweet_content = response.choices[0].text.strip()
+
+    # Enter the generated tweet content
+    tweet_input.send_keys(tweet_content)
+
+    # Post the tweet
+    post_button = driver.find_element_by_css_selector('div[data-testid="tweetButtonInline"]')
+    post_button.click()
+    time.sleep(5)  # Wait for the tweet to be posted
+
+except NoSuchElementException:
+    print("Error: Failed to find tweet input field on the page.")
+except IndexError:
+    print("Error: No input provided.")
+except Exception as e:
+    print("An error occurred during tweet generation/posting:", str(e))
+
+# Close the browser
+driver.quit()
