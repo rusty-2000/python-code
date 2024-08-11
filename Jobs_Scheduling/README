@@ -1,0 +1,25 @@
+# Job Scheduler Microservice
+
+## Project Setup
+
+1. Prerequisites
+- Python 3.8+
+- pip
+- virtualenv (optional, but recommended)
+3. Install dependencies:pip install -r requirements.txt
+
+2. Access the API at `http://localhost:8000/api/jobs/`
+
+3. View API documentation at `http://localhost:8000/swagger/`
+## API Endpoints
+
+- GET /api/jobs/: List all jobs
+- POST /api/jobs/: Create a new job
+- GET /api/jobs/{id}/: Retrieve a specific job
+- PUT /api/jobs/{id}/: Update a specific job
+- DELETE /api/jobs/{id}/: Delete a specific job
+- POST /api/jobs/{id}/mark_as_run/: Mark a job as run
+
+## Running Tests
+
+Run the test suite with:
