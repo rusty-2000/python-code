@@ -24,8 +24,7 @@ class RunScheduledJobs(CronJobBase):
                 with transaction.atomic():
                     # Execute job (dummy implementation)
                     logger.info(f"Executing job: {job.name}")
-                    # Here you would typically call a task queue like Celery
-                    # to handle the actual job execution asynchronously
+                    
 
                     # Update last_run and calculate next_run
                     job.last_run = now
