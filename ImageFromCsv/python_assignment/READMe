@@ -1,0 +1,60 @@
+Low-Level Design (LLD) Document---
+
+System Overview: The system processes image data from a CSV file. It accepts the CSV file, validates it, processes images asynchronously, stores the results, and allows users to check the status of their request. The system also supports webhook notifications.
+
+Components:
+
+    CSV Upload Service: Handles the upload and validation of the CSV file.
+    Image Processing Service: Asynchronously compresses images using Celery.
+    Database: Stores product information, input/output image URLs, and processing status.
+    Status API: Allows users to query the status of their request.
+    Webhook Service: Notifies an external system upon completion of image processing.
+
+Data Flow:
+
+    The user uploads a CSV file via the Upload API.
+    The system validates the CSV format.
+    Upon successful validation, a unique request ID is generated, and the CSV data is stored in the database.
+    The images are processed asynchronously by Celery workers.
+    Processed images are stored in the database along with their corresponding URLs.
+    The user can query the processing status using the Status API.
+    Upon completion, the system triggers a webhook if one is registered.
+
+Error Handling:
+
+    Invalid CSV format: Returns a 400 Bad Request with an error message.
+    Database errors: Returns a 500 Internal Server Error.
+    Image processing errors: Logged and tracked, with appropriate status updates.
+
+Performance Considerations:
+
+    Images are processed asynchronously to avoid blocking the main application thread.
+    The system is designed to handle multiple concurrent uploads and process them efficiently.
+
+API DOCUMENTATION ---
+API Documentation
+
+Upload API:
+
+    Endpoint: /api/v1/upload
+    Method: POST
+    Request:
+        Form-data: file (CSV file)
+    Response:
+        200 OK with {"request_id": "<uuid>"}
+
+Status API:
+
+    Endpoint: /api/v1/status/<request_id>
+    Method: GET
+    Response:
+        200 OK with {"status": "PENDING" | "PROCESSING" | "COMPLETED"}
+
+Webhook API:
+
+    Endpoint: /api/v1/webhook
+    Method: POST
+    Request:
+        JSON: {"callback_url": "http://example.com/webhook"}
+    Response:
+        200 OK with {"message": "Webhook registered successfully."}
